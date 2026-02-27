@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard</title>
+</head>
+<body>
+
+<h2>Task Dashboard</h2>
+
+<input id="title" placeholder="Task title">
+<input id="description" placeholder="Description">
+<button onclick="createTask()">Add Task</button>
+
+<ul id="taskList"></ul>
+
+<script>
+    const token = localStorage.getItem("token");
+
+    async function loadTasks() {
+        const response = await fetch("http://localhost:8080/api/v1/tasks", {
+            headers: {
+                "Authorization": "Bearer " + token
+            }
+        });
+
+        const tasks = await response.json();
+        const list = document.getElementById("taskList");
+        list.innerHTML = "";
+
+        tasks.forEach(task => {
+            const li = document.createElement("li");
+            li.innerText = task.title + " - " + task.description;
+            list.appendChild(li);
+        });
+    }
+
+    async function createTask() {
+        await fetch("http://localhost:8080/api/v1/tasks", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + token
+            },
+            body: JSON.stringify({
+                title: document.getElementById("title").value,
+                description: document.getElementById("description").value,
+                completed: false
+            })
+        });
+
+        loadTasks();
+    }
+
+    loadTasks();
+</script>
+
+</body>
+</html>
